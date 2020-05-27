@@ -1,6 +1,10 @@
-# ![Optifine Capes Logo](Media/logo.png)
+<div align="center">
+
+![Optifine Capes Logo](Media/logo.png)
 
 > ```Optifine Capes``` let you see Optifine donators cape without the needs to install Optifine
+
+</div>
 
 ## How to install
 
