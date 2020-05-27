@@ -58,7 +58,7 @@ public class OptifineCapes
 
     		if (acp.hasPlayerInfo() && acp.getLocationCape() == null)
     		{
-    			NetworkPlayerInfo playerInfo = ObfuscationReflectionHelper.getPrivateValue(AbstractClientPlayer.class, acp, "field_175157_a");
+                NetworkPlayerInfo playerInfo = ObfuscationReflectionHelper.getPrivateValue(AbstractClientPlayer.class, acp, "field_175157_a");
     			Map<Type, ResourceLocation> textures = ObfuscationReflectionHelper.getPrivateValue(NetworkPlayerInfo.class, playerInfo, "field_187107_a");
     	    	ResourceLocation resourceLocation = new ResourceLocation(MODID, String.format("capes/%s.png", uuid));
     	    	Utils.getDownloadImageCape(resourceLocation, player.getName());
