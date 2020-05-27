@@ -5,7 +5,7 @@
 ## How to install
 
 - Download from [Curse Forge](https://www.curseforge.com/minecraft/mc-mods/optifine-capes)
-- Download from Releases tab
+- Download from [Releases](https://github.com/Nearata/OptifineCapes/releases) tab
 
 ## License
 
