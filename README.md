@@ -2,7 +2,7 @@
 
 ![Optifine Capes Logo](Media/logo.png)
 
-<sup>Optifine Capes let you see Optifine donators cape without the needs to install Optifine</sup>
+Optifine Capes let you see Optifine donators cape without the needs to install Optifine
 
 </div>
 
