@@ -12,8 +12,8 @@ import com.google.common.hash.Hashing;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
+import net.minecraft.client.renderer.texture.DownloadingTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.texture.ThreadDownloadImageData;
 import net.minecraft.util.ResourceLocation;
 
 public final class CapeManager
@@ -29,7 +29,7 @@ public final class CapeManager
 
         File file1 = new File(capeDir().toFile(), s.length() > 2 ? s.substring(0, 2) : "xx");
         File file2 = new File(file1, s);
-        ThreadDownloadImageData threaddownloadimagedata = new ThreadDownloadImageData(file2, url, NO_CAPE, new IImageBuffer() {
+        DownloadingTexture downloadingtexture = new DownloadingTexture(file2, url, NO_CAPE, new IImageBuffer() {
             public NativeImage parseUserSkin(NativeImage nativeImageIn)
             {
                 int imageWidth = 64;
@@ -53,26 +53,26 @@ public final class CapeManager
             }
         });
 
-        mc.textureManager.loadTexture(resourcelocation, threaddownloadimagedata);
+        mc.textureManager.loadTexture(resourcelocation, downloadingtexture);
 
         return resourcelocation;
     }
-    
+
     public static final void clearCapes()
     {
         try
         {
             Files.walk(capeDir())
-              .sorted(Comparator.reverseOrder())
-              .map(Path::toFile)
-              .forEach(File::delete);
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
     }
-    
+
     public static final Path capeDir()
     {
         return Paths.get(mc.gameDir.getPath(), "assets", "optifinecapes");
