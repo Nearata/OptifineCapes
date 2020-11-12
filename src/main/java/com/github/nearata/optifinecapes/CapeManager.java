@@ -1,80 +1,68 @@
 package com.github.nearata.optifinecapes;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
+import java.net.URL;
+import java.util.Map;
 
-import com.google.common.hash.Hashing;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.texture.DownloadingTexture;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public final class CapeManager
 {
-    private static final ResourceLocation NO_CAPE = new ResourceLocation("optifinecapes", "textures/no_cape.png");
     private static final Minecraft mc = Minecraft.getInstance();
 
-    public static final ResourceLocation loadCape(String uuid, String username)
+    public static final void loadCape(AbstractClientPlayerEntity acp)
     {
-        final String url = String.format("http://s.optifine.net/capes/%s.png", username);
-        final String s = Hashing.sha1().hashString(uuid, Charset.defaultCharset()).toString();
-        ResourceLocation resourcelocation = new ResourceLocation("optifinecapes/" + s);
-
-        File file1 = new File(capeDir().toFile(), s.length() > 2 ? s.substring(0, 2) : "xx");
-        File file2 = new File(file1, s);
-        DownloadingTexture downloadingtexture = new DownloadingTexture(file2, url, NO_CAPE, new IImageBuffer() {
-            public NativeImage parseUserSkin(NativeImage nativeImageIn)
+        final String username = acp.getDisplayName().getString();
+        
+        final NetworkPlayerInfo playerInfo = ObfuscationReflectionHelper.getPrivateValue(AbstractClientPlayerEntity.class, acp, "field_175157_a");
+        final Map<Type, ResourceLocation> playerTextures = ObfuscationReflectionHelper.getPrivateValue(NetworkPlayerInfo.class, playerInfo, "field_187107_a");
+        
+        Runnable runnable = () -> {
+            try
             {
-                int imageWidth = 64;
-                int imageHeight = 32;
-                int imageSrcWidth = nativeImageIn.getWidth();
+                final URL url = new URL(String.format("http://s.optifine.net/capes/%s.png", username));
+                
+                final NativeImage nativeImage = NativeImage.read(url.openStream());
+                
+                final DynamicTexture texture = new DynamicTexture(parseCape(nativeImage));
+                final ResourceLocation resourcelocation = mc.getTextureManager().getDynamicTextureLocation("optifinecapes/", texture);
 
-                for (int imageSrcHeight = nativeImageIn.getHeight(); imageWidth < imageSrcWidth || imageHeight < imageSrcHeight; imageHeight *= 2)
-                {
-                    imageWidth *= 2;
-                }
-
-                NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, true);
-                nativeImage.copyImageData(nativeImageIn);
-                nativeImageIn.close();
-
-                return nativeImage;
+                playerTextures.put(Type.CAPE, resourcelocation);
+                playerTextures.put(Type.ELYTRA, resourcelocation);
             }
-
-            public void skinAvailable()
+            catch (IOException e)
             {
+                // no cape
             }
-        });
-
-        mc.textureManager.loadTexture(resourcelocation, downloadingtexture);
-
-        return resourcelocation;
+        };
+        
+        Util.getServerExecutor().execute(runnable);
     }
-
-    public static final void clearCapes()
+    
+    private static final NativeImage parseCape(NativeImage nativeImageIn)
     {
-        try
-        {
-            Files.walk(capeDir())
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+        int imageWidth = 64;
+        int imageHeight = 32;
+        int imageSrcWidth = nativeImageIn.getWidth();
 
-    public static final Path capeDir()
-    {
-        return Paths.get(mc.gameDir.getPath(), "assets", "optifinecapes");
+        for (int srcHeight = nativeImageIn.getHeight(); imageWidth < imageSrcWidth || imageHeight < srcHeight; imageHeight *= 2)
+        {
+            imageWidth *= 2;
+        }
+
+        NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, true);
+        nativeImage.copyImageData(nativeImageIn);
+        nativeImageIn.close();
+        
+        return nativeImage;
     }
 }
