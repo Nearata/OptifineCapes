@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "Resources used by Optifine Capes",
-        "pack_format": 3
+        "description": "Optifine Capes resources",
+        "pack_format": 4,
     }
 }

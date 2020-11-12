@@ -1,0 +1,21 @@
+modLoader="javafml"
+loaderVersion="[25,)"
+issueTrackerURL="https://github.com/Nearata/OptifineCapes/issues"
+logoFile="logo.png"
+
+[[mods]]
+    modId="optifinecapes"
+    version="${file.jarVersion}"
+    displayName="Optifine Capes"
+    displayURL="https://github.com/Nearata/OptifineCapes"
+    authors="Nearata"
+    description='''
+    For those who are only interested in the optifine capes.
+    '''
+
+[[dependencies.optifinecapes]] #optional
+    modId="forge"
+    mandatory=true
+    versionRange="[25,)"
+    ordering="NONE"
+    side="CLIENT"

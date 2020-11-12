@@ -1,65 +1,63 @@
 package com.github.nearata.optifinecapes;
 
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
+import java.nio.file.Files;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
-@Mod(modid = OptifineCapes.MODID, name = OptifineCapes.NAME, version = OptifineCapes.VERSION, acceptedMinecraftVersions = OptifineCapes.ACCEPTED_MINECRAFT_VERSIONS)
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+@Mod("optifinecapes")
 public class OptifineCapes
 {
-    public static final String MODID = "optifinecapes";
-    public static final String NAME = "Optifine Capes";
-    public static final String VERSION = "1.0";
-    public static final String ACCEPTED_MINECRAFT_VERSIONS = "[1.12.2]";
+    public static Logger logger = LogManager.getLogger();
+    private final Minecraft mc = Minecraft.getInstance();
 
-    public static Logger logger;
-
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event)
-    {
-        logger = event.getModLog();
-    }
-
-    @EventHandler
-    public void init(FMLInitializationEvent event)
+    public OptifineCapes()
     {
         MinecraftForge.EVENT_BUS.register(this);
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> CapeManager.clearCapes()));
     }
 
     @SubscribeEvent
-    public void renderPlayer(RenderPlayerEvent.Post event)
+    public final void renderPlayer(RenderPlayerEvent.Pre event)
     {
-        EntityPlayer player = event.getEntityPlayer();
-        String uuid = player.getUniqueID().toString();
+        AbstractClientPlayer acp = (AbstractClientPlayer) event.getEntityPlayer();
 
-        if (player instanceof AbstractClientPlayer)
+        if (acp.hasPlayerInfo() && acp.getLocationCape() == null)
         {
-            AbstractClientPlayer acp = (AbstractClientPlayer) player;
+            String username = acp.getDisplayName().getString();
+            String uuid = acp.getUniqueID().toString();
+            
+            NetworkPlayerInfo playerInfo = ObfuscationReflectionHelper.getPrivateValue(AbstractClientPlayer.class, acp, "field_175157_a");
+            Map<Type, ResourceLocation> textures = ObfuscationReflectionHelper.getPrivateValue(NetworkPlayerInfo.class, playerInfo, "field_187107_a");
+            
+            ResourceLocation resourceLocation = CapeManager.loadCape(uuid, username);
+            
+            textures.put(Type.CAPE, resourceLocation);
+            textures.put(Type.ELYTRA, resourceLocation);
+        }
+    }
 
-            if (acp.hasPlayerInfo() && acp.getLocationCape() == null)
-            {
-                NetworkPlayerInfo playerInfo = ObfuscationReflectionHelper.getPrivateValue(AbstractClientPlayer.class, acp, "field_175157_a");
-                Map<Type, ResourceLocation> textures = ObfuscationReflectionHelper.getPrivateValue(NetworkPlayerInfo.class, playerInfo, "field_187107_a");
-                ResourceLocation resourceLocation = new ResourceLocation(MODID, String.format("capes/%s.png", uuid));
-                Utils.getDownloadImageCape(resourceLocation, player.getName());
-                textures.put(Type.CAPE, resourceLocation);
-                textures.put(Type.ELYTRA, resourceLocation);
-            }
+    @SubscribeEvent
+    public final void clientTick(TickEvent.ClientTickEvent event)
+    {
+        if (mc.world == null && Files.exists(CapeManager.capeDir()))
+        {
+            CapeManager.clearCapes();
         }
     }
 }
