@@ -1,21 +1,18 @@
-modLoader="javafml"
-loaderVersion="[31,)"
-issueTrackerURL="https://github.com/Nearata/OptifineCapes/issues"
-logoFile="logo.png"
-
-[[mods]]
-    modId="optifinecapes"
-    version="${file.jarVersion}"
-    displayName="Optifine Capes"
-    displayURL="https://github.com/Nearata/OptifineCapes"
-    authors="Nearata"
-    description='''
-    For those who are only interested in the optifine capes.
-    '''
-
-[[dependencies.optifinecapes]] #optional
-    modId="forge"
+modLoader="javafml" #mandatory
+loaderVersion="[35,)" #mandatory
+license="MIT"
+issueTrackerURL="https://github.com/Nearata/OptifineCapes/issues" #optional
+[[mods]] #mandatory
+modId="optifinecapes" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="Optifine Capes" #mandatory
+logoFile="logo.png" #optional
+authors="Nearata" #optional
+description="For those who are only interested in the optifine capes."
+[[dependencies.optifinecapes]]
+    modId="minecraft"
     mandatory=true
-    versionRange="[31,)"
+# This version range declares a minimum of the current minecraft version up to but not including the next major version
+    versionRange="[1.16.4,1.17)"
     ordering="NONE"
     side="CLIENT"
