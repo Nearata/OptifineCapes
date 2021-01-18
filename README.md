@@ -1,6 +1,6 @@
 <div align="center">
 
-![Optifine Capes Logo](Media/logo.png)
+![Optifine Capes Logo](src/main/resources/logo.png)
 
 Optifine Capes let you see Optifine donators cape without the needs to install Optifine
 
@@ -13,7 +13,7 @@ Optifine Capes let you see Optifine donators cape without the needs to install O
 
 ## License
 
-Distributed under the MIT license. See ```LICENSE``` for more information.
+Distributed under the MIT license. See `LICENSE` for more information.
 
 ## Contributing
 
