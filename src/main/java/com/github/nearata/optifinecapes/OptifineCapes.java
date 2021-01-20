@@ -57,7 +57,7 @@ public final class OptifineCapes
 
     private final void loadCape(final AbstractClientPlayerEntity acp)
     {
-        final String name = acp.getDisplayName().getString();
+        final String name = acp.getName().getString();
         final NetworkPlayerInfo playerInfo = acp.getPlayerInfo();
 
         Util.getServerExecutor().execute(() -> {
