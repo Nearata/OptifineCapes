@@ -67,7 +67,7 @@ public final class OptifineCapes
                 final NativeImage nativeImage = NativeImage.read(url.openStream());
                 final DynamicTexture dynamicTexture = new DynamicTexture(this.parseCape(nativeImage));
                 final ResourceLocation resourceLocation = mc.getTextureManager().getDynamicTextureLocation("optifinecapes/", dynamicTexture);
-                
+
                 mc.getTextureManager().loadTexture(resourceLocation, dynamicTexture);
 
                 playerInfo.playerTextures.put(Type.CAPE, resourceLocation);
@@ -85,14 +85,24 @@ public final class OptifineCapes
         int imageWidth = 64;
         int imageHeight = 32;
         int imageSrcWidth = nativeImageIn.getWidth();
+        int imageSrcHeight = nativeImageIn.getHeight();
 
-        for (int srcHeight = nativeImageIn.getHeight(); imageWidth < imageSrcWidth || imageHeight < srcHeight; imageHeight *= 2)
+        while (imageWidth < imageSrcWidth || imageHeight < imageSrcHeight)
         {
             imageWidth *= 2;
+            imageHeight *= 2;
         }
 
         NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, true);
-        nativeImage.copyImageData(nativeImageIn);
+
+        for (int x = 0; x < imageSrcWidth; x++)
+        {
+            for (int y = 0; y < imageSrcHeight; y++)
+            {
+                nativeImage.setPixelRGBA(x, y, nativeImageIn.getPixelRGBA(x, y));
+            }
+        }
+
         nativeImageIn.close();
 
         return nativeImage;
