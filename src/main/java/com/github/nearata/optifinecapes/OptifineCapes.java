@@ -33,51 +33,46 @@ public final class OptifineCapes
     }
 
     @SubscribeEvent
-    public final void renderPlayerPre(final RenderPlayerEvent.Pre event)
+    public final void renderPlayer(final RenderPlayerEvent.Pre event)
     {
         final PlayerEntity player = event.getPlayer();
         final AbstractClientPlayerEntity acp = (AbstractClientPlayerEntity) player;
-        final String name = player.getDisplayName().getString();
+        final String name = player.getName().getString();
 
-        if (acp.hasPlayerInfo() && acp.getLocationCape() == null && !players.contains(name))
+        if (acp.isCapeLoaded() && acp.getCloakTextureLocation() == null && !players.contains(name))
         {
             this.players.add(name);
-            this.loadCape(acp);
+
+            final NetworkPlayerInfo playerInfo = acp.getPlayerInfo();
+
+            Util.backgroundExecutor().execute(() -> {
+                try
+                {
+                    final URL url = new URL(String.format("http://s.optifine.net/capes/%s.png", name));
+                    final NativeImage nativeImage = NativeImage.read(url.openStream());
+                    final DynamicTexture dynamicTexture = new DynamicTexture(this.parseCape(nativeImage));
+                    final ResourceLocation resourceLocation = mc.getTextureManager().register("optifinecapes/", dynamicTexture);
+
+                    mc.getTextureManager().loadTexture(resourceLocation, dynamicTexture);
+
+                    playerInfo.textureLocations.put(Type.CAPE, resourceLocation);
+                    playerInfo.textureLocations.put(Type.ELYTRA, resourceLocation);
+                }
+                catch (final IOException e)
+                {
+                    // no cape
+                }
+            });
         }
     }
 
     @SubscribeEvent
     public final void clientTick(final ClientTickEvent event)
     {
-        if (mc.world == null && !this.players.isEmpty())
+        if (mc.player == null && !this.players.isEmpty())
         {
             this.players.clear();
         }
-    }
-
-    private final void loadCape(final AbstractClientPlayerEntity acp)
-    {
-        final String name = acp.getName().getString();
-        final NetworkPlayerInfo playerInfo = acp.getPlayerInfo();
-
-        Util.getServerExecutor().execute(() -> {
-            try
-            {
-                final URL url = new URL(String.format("http://s.optifine.net/capes/%s.png", name));
-                final NativeImage nativeImage = NativeImage.read(url.openStream());
-                final DynamicTexture dynamicTexture = new DynamicTexture(this.parseCape(nativeImage));
-                final ResourceLocation resourceLocation = mc.getTextureManager().getDynamicTextureLocation("optifinecapes/", dynamicTexture);
-
-                mc.getTextureManager().loadTexture(resourceLocation, dynamicTexture);
-
-                playerInfo.playerTextures.put(Type.CAPE, resourceLocation);
-                playerInfo.playerTextures.put(Type.ELYTRA, resourceLocation);
-            }
-            catch (final IOException e)
-            {
-                // no cape
-            }
-        });
     }
 
     private final NativeImage parseCape(final NativeImage nativeImageIn)
