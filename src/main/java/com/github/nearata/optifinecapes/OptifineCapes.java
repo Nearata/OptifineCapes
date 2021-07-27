@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.mojang.blaze3d.platform.NativeImage;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -35,15 +35,15 @@ public final class OptifineCapes
     @SubscribeEvent
     public final void renderPlayer(final RenderPlayerEvent.Pre event)
     {
-        final PlayerEntity player = event.getPlayer();
-        final AbstractClientPlayerEntity acp = (AbstractClientPlayerEntity) player;
+        final Player player = event.getPlayer();
+        final AbstractClientPlayer acp = (AbstractClientPlayer) player;
         final String name = player.getName().getString();
 
         if (acp.isCapeLoaded() && acp.getCloakTextureLocation() == null && !players.contains(name))
         {
             this.players.add(name);
 
-            final NetworkPlayerInfo playerInfo = acp.getPlayerInfo();
+            final PlayerInfo playerInfo = acp.getPlayerInfo();
 
             Util.backgroundExecutor().execute(() -> {
                 try
@@ -52,8 +52,6 @@ public final class OptifineCapes
                     final NativeImage nativeImage = NativeImage.read(url.openStream());
                     final DynamicTexture dynamicTexture = new DynamicTexture(this.parseCape(nativeImage));
                     final ResourceLocation resourceLocation = mc.getTextureManager().register("optifinecapes/", dynamicTexture);
-
-                    mc.getTextureManager().loadTexture(resourceLocation, dynamicTexture);
 
                     playerInfo.textureLocations.put(Type.CAPE, resourceLocation);
                     playerInfo.textureLocations.put(Type.ELYTRA, resourceLocation);

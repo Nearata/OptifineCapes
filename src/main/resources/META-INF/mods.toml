@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[36,)" #mandatory
+loaderVersion="[37,)" #mandatory
 license="MIT"
 issueTrackerURL="https://github.com/Nearata/OptifineCapes/issues" #optional
 [[mods]] #mandatory
@@ -13,6 +13,6 @@ description="For those who are only interested in the optifine capes."
     modId="minecraft"
     mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-    versionRange="[1.16.5,1.17)"
+    versionRange="[1.17.1,1.18)"
     ordering="NONE"
     side="CLIENT"
