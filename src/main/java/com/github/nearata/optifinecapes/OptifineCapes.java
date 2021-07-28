@@ -1,25 +1,30 @@
 package com.github.nearata.optifinecapes;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod("optifinecapes")
-public class OptifineCapes
+public final class OptifineCapes
 {
-    public static final Logger logger = LogManager.getLogger();
     private final Minecraft mc = Minecraft.getInstance();
-    private static List<String> players = new ArrayList<String>();
+    private List<String> players = new ArrayList<>();
 
     public OptifineCapes()
     {
@@ -27,24 +32,69 @@ public class OptifineCapes
     }
 
     @SubscribeEvent
-    public final void renderPlayer(RenderPlayerEvent.Pre event)
+    public void renderPlayer(RenderPlayerEvent.Pre event)
     {
         final AbstractClientPlayerEntity acp = (AbstractClientPlayerEntity) event.getPlayer();
-        final String username = acp.getDisplayName().getString();
+        final String username = acp.getName().getString();
 
-        if (acp.hasPlayerInfo() && acp.getLocationCape() == null && !players.contains(username))
+        if (acp.isCapeLoaded() && acp.getCloakTextureLocation() == null && !players.contains(username))
         {
-            players.add(username);
-            CapeManager.loadCape(acp);
+            this.players.add(username);
+            Map<Type, ResourceLocation> textureLocations = acp.getPlayerInfo().textureLocations;
+
+            Util.backgroundExecutor().execute(() -> {
+                try
+                {
+                    final URL url = new URL(String.format("http://s.optifine.net/capes/%s.png", username));
+                    final NativeImage nativeImage = NativeImage.read(url.openStream());
+                    final DynamicTexture dynamictexture = new DynamicTexture(this.parseCape(nativeImage));
+                    final ResourceLocation resourcelocation = mc.getTextureManager().register("optifinecapes/", dynamictexture);
+
+                    textureLocations.put(Type.CAPE, resourcelocation);
+                    textureLocations.put(Type.ELYTRA, resourcelocation);
+                }
+                catch (IOException e)
+                {
+                    // no cape
+                }
+            });
         }
     }
-    
+
     @SubscribeEvent
-    public final void clientTick(TickEvent.ClientTickEvent event)
+    public void clientTick(ClientTickEvent event)
     {
-        if (mc.world == null && !players.isEmpty())
+        if (mc.player == null && !this.players.isEmpty())
         {
-            players.clear();
+            this.players.clear();
         }
+    }
+
+    private NativeImage parseCape(NativeImage nativeImageIn)
+    {
+        int imageWidth = 64;
+        int imageHeight = 32;
+        int imageSrcWidth = nativeImageIn.getWidth();
+        int imageSrcHeight = nativeImageIn.getHeight();
+
+        while (imageWidth < imageSrcWidth || imageHeight < imageSrcHeight)
+        {
+            imageWidth *= 2;
+            imageHeight *= 2;
+        }
+
+        NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, true);
+
+        for (int x = 0; x < imageSrcWidth; x++)
+        {
+            for (int y = 0; y < imageSrcHeight; y++)
+            {
+                nativeImage.setPixelRGBA(x, y, nativeImageIn.getPixelRGBA(x, y));
+            }
+        }
+
+        nativeImageIn.close();
+
+        return nativeImage;
     }
 }
