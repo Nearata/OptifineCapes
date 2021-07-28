@@ -53,8 +53,6 @@ public final class OptifineCapes
                     final DynamicTexture dynamicTexture = new DynamicTexture(this.parseCape(nativeImage));
                     final ResourceLocation resourceLocation = mc.getTextureManager().register("optifinecapes/", dynamicTexture);
 
-                    mc.getTextureManager().loadTexture(resourceLocation, dynamicTexture);
-
                     playerInfo.textureLocations.put(Type.CAPE, resourceLocation);
                     playerInfo.textureLocations.put(Type.ELYTRA, resourceLocation);
                 }
