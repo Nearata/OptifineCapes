@@ -1,6 +1,6 @@
 modLoader="javafml" #mandatory
 loaderVersion="[32,)" #mandatory
-license="MIT"
+license="Unlicense"
 issueTrackerURL="https://github.com/Nearata/OptifineCapes/issues" #optional
 [[mods]] #mandatory
 modId="optifinecapes" #mandatory
