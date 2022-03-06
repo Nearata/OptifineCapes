@@ -12,7 +12,6 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -35,11 +34,10 @@ public final class OptifineCapes
     @SubscribeEvent
     public final void renderPlayer(final RenderPlayerEvent.Pre event)
     {
-        final PlayerEntity player = event.getPlayer();
-        final AbstractClientPlayerEntity acp = (AbstractClientPlayerEntity) player;
-        final String name = player.getName().getString();
+        final AbstractClientPlayerEntity acp = (AbstractClientPlayerEntity) event.getPlayer();
+        final String name = acp.getName().getString();
 
-        if (acp.isCapeLoaded() && acp.getCloakTextureLocation() == null && !players.contains(name))
+        if (acp.isCapeLoaded() && !this.players.contains(name))
         {
             this.players.add(name);
 
@@ -48,7 +46,7 @@ public final class OptifineCapes
             Util.backgroundExecutor().execute(() -> {
                 try
                 {
-                    final URL url = new URL(String.format("http://s.optifine.net/capes/%s.png", name));
+                    final URL url = new URL("http://s.optifine.net/capes/" + name + ".png");
                     final NativeImage nativeImage = NativeImage.read(url.openStream());
                     final DynamicTexture dynamicTexture = new DynamicTexture(this.parseCape(nativeImage));
                     final ResourceLocation resourceLocation = mc.getTextureManager().register("optifinecapes/", dynamicTexture);
