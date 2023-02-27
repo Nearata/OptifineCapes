@@ -1,1 +1,8 @@
-rootProject.name = 'OptifineCapes-1.18.x-forge'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+}
+
+rootProject.name = 'OptifineCapes-1.19.x-forge'

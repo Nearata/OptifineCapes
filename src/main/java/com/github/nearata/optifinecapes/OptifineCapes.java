@@ -34,7 +34,7 @@ public final class OptifineCapes
     @SubscribeEvent
     public final void renderPlayer(final RenderPlayerEvent.Pre event)
     {
-        final AbstractClientPlayer acp = (AbstractClientPlayer) event.getPlayer();
+        final AbstractClientPlayer acp = (AbstractClientPlayer) event.getEntity();
         final String name = acp.getName().getString();
 
         if (acp.isCapeLoaded() && !this.players.contains(name))
@@ -84,7 +84,7 @@ public final class OptifineCapes
             imageHeight *= 2;
         }
 
-        NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, true);
+        final NativeImage nativeImage = new NativeImage(imageWidth, imageHeight, true);
 
         for (int x = 0; x < imageSrcWidth; x++)
         {

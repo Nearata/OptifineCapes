@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[38,)" #mandatory
+loaderVersion="[41,)" #mandatory
 license="Unlicense" #mandatory
 issueTrackerURL="https://github.com/Nearata/OptifineCapes/issues" #optional
 
@@ -14,6 +14,6 @@ description="For those who are only interested in the optifine capes."
 [[dependencies.optifinecapes]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18,1.19)"
+    versionRange="[1.19,1.20)"
     ordering="NONE"
     side="CLIENT"
