@@ -1,17 +1,22 @@
 plugins {
     id 'eclipse'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-version = '1.19.x-1.0.0'
-group = 'com.github.nearata.optifinecapes'
-archivesBaseName = 'OptifineCapes'
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_name
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'official', version: '1.19.3'
+    mappings channel: mapping_channel, version: mapping_version
+    
+    copyIdeResources = true
     
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -21,10 +26,10 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'optifinecapes'
+            property 'forge.enabledGameTestNamespaces', mod_id
 
             mods {
-                optifinecapes {
+                "${mod_id}" {
                     source sourceSets.main
                 }
             }
@@ -38,21 +43,42 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.1.20'
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+}
+
+def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
+def replaceProperties = [
+        minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+        forge_version: forge_version, forge_version_range: forge_version_range,
+        loader_version_range: loader_version_range,
+        mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+        mod_authors: mod_authors, mod_description: mod_description
+]
+processResources {
+    inputs.properties replaceProperties
+    replaceProperties.put 'project', project
+
+    filesMatching(resourceTargets) {
+        expand replaceProperties
+    }
 }
 
 jar {
     manifest {
         attributes([
-            "Specification-Title"     : "optifinecapes",
-            "Specification-Vendor"    : "nearata",
+            "Specification-Title"     : mod_id,
+            "Specification-Vendor"    : mod_authors,
             "Specification-Version"   : "1", // We are version 1 of ourselves
             "Implementation-Title"    : project.name,
             "Implementation-Version"  : project.jar.archiveVersion,
-            "Implementation-Vendor"   : "nearata",
+            "Implementation-Vendor"   : mod_authors,
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
 
 jar.finalizedBy('reobfJar')
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
