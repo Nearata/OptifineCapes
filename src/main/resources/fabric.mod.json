@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "optifinecapes",
+  "version": "${version}",
+  "name": "OptifineCapes",
+  "description": "Adds Optifine capes in game.",
+  "authors": [
+    "Nearata"
+  ],
+  "contact": {},
+  "license": "Unlicense",
+  "icon": "assets/optifinecapes/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.github.nearata.optifinecapes.OptifineCapes"
+    ]
+  },
+  "mixins": [
+    "optifinecapes.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": "~1.20",
+    "java": ">=17"
+  },
+  "suggests": {},
+  "accessWidener": "optifinecapes.accesswidener"
+}
