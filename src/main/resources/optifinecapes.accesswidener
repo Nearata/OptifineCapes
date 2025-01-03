@@ -1,4 +1,1 @@
 accessWidener v2 named
-
-accessible class net/minecraft/client/texture/PlayerSkinProvider$FileCache
-accessible field net/minecraft/client/texture/PlayerSkinProvider$FileCache hashToTexture Ljava/util/Map;
