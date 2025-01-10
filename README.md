@@ -4,16 +4,12 @@
 
 ## Currently Supported Versions
 
-Check [Supported Version Directory](https://forums.minecraftforge.net/topic/91712-supported-version-directory/) thread on forge forum.
+The latest release and the previous major release
 
-## How to install
+## Available on
 
-- Download from [Curse Forge](https://www.curseforge.com/minecraft/mc-mods/optifine-capes); or
-- Download from [Releases](https://github.com/Nearata/OptifineCapes/releases) tab
-
-## Credits
-
-- [Textcraft](https://textcraft.net/) for the logo.
+- [GitHub Releases](https://github.com/Nearata/OptifineCapes/releases)
+- [Curse Forge](https://www.curseforge.com/minecraft/mc-mods/optifine-capes)
 
 ## Unlicense
 
