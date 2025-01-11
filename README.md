@@ -2,9 +2,9 @@
 
 > Optifine Capes let you see Optifine donators cape without the needs to install Optifine
 
-## Currently Supported Versions
+## Supported Minecraft Versions
 
-The latest release and the previous major release
+Latest release and the previous major release
 
 ## Available on
 
