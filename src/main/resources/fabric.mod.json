@@ -3,7 +3,7 @@
   "id": "optifinecapes",
   "version": "${version}",
   "name": "OptifineCapes",
-  "description": "Adds Optifine capes in game.",
+  "description": "It shows the optifine cape if a player has one.",
   "authors": [
     "Nearata"
   ],
