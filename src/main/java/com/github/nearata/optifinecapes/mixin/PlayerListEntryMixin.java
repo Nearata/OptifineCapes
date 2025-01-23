@@ -1,6 +1,5 @@
 package com.github.nearata.optifinecapes.mixin;
 
-import com.github.nearata.optifinecapes.OptifineCapes;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
@@ -9,16 +8,14 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.function.Supplier;
 
 @Mixin(PlayerListEntry.class)
 public class PlayerListEntryMixin
@@ -27,41 +24,36 @@ public class PlayerListEntryMixin
     @Final
     private GameProfile profile;
 
-    @Inject(method = "getSkinTextures", at = @At("RETURN"), cancellable = true)
+    @Shadow
+    @Final
+    @Mutable
+    private Supplier<SkinTextures> texturesSupplier;
+
+    @Unique
+    private boolean ofcProcessed = false;
+
+    @Inject(method = "getSkinTextures", at = @At("RETURN"))
     public void getSkinTextures(CallbackInfoReturnable<SkinTextures> cir)
     {
         final SkinTextures skinTextures = cir.getReturnValue();
 
-        if (skinTextures.capeTexture() != null)
+        if (!this.ofcProcessed)
         {
-            return;
-        }
-
-        if (!OptifineCapes.ofc.containsKey(this.profile.getId()))
-        {
-            OptifineCapes.ofc.put(this.profile.getId(), null);
+            this.ofcProcessed = true;
             Util.getMainWorkerExecutor().execute(() -> {
                 try
                 {
                     final URL url = new URI("http://s.optifine.net/capes/" + this.profile.getName() + ".png").toURL();
                     final NativeImage nativeImage = NativeImage.read(url.openStream());
                     final NativeImageBackedTexture dynamicTexture = new NativeImageBackedTexture(this.parseCape(nativeImage));
-                    final Identifier identifier1 = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("optifinecapes/", dynamicTexture);
-
-                    OptifineCapes.ofc.put(this.profile.getId(), identifier1);
+                    final Identifier identifier = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("optifinecapes/", dynamicTexture);
+                    final SkinTextures skinTextures1 = new SkinTextures(skinTextures.texture(), skinTextures.textureUrl(), identifier, identifier, skinTextures.model(), skinTextures.secure());
+                    this.texturesSupplier = () -> skinTextures1;
                 }
                 catch (Exception ignored)
                 {
                 }
             });
-        }
-
-        final Identifier identifier = OptifineCapes.ofc.get(this.profile.getId());
-
-        if (identifier != null)
-        {
-            final SkinTextures skinTextures1 = new SkinTextures(skinTextures.texture(), skinTextures.textureUrl(), identifier, identifier, skinTextures.model(), skinTextures.secure());
-            cir.setReturnValue(skinTextures1);
         }
     }
 
