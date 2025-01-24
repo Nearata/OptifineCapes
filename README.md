@@ -2,6 +2,10 @@
 
 > Optifine Capes let you see Optifine donators cape without the needs to install Optifine
 
+## Archived
+
+I no longer see the point of this mod
+
 ## Supported Minecraft Versions
 
 Latest release and the previous major release
